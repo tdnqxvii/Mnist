@@ -1,0 +1,56 @@
+# IMPORT LIBRARY
+from tensorflow.keras.datasets import mnist 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from tensorflow.keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Dropout,MaxPooling2D,Conv2D,Flatten
+from tensorflow.keras.optimizers import SGD
+
+# LOAD
+(x_train,y_train),(x_test,y_test) = mnist.load_data()
+X = x_test
+classes = [0,1,2,3,4,5,6,7,8,9]
+
+# CONVERT TO FLOAT
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+x_train/=255
+x_test/=255
+
+y_train = to_categorical(y_train,10)
+y_test = to_categorical(y_test,10)
+
+# CREATE MODEL CNN
+
+model = Sequential()
+# BLOCK 1
+model.add(Conv2D(32,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same' ,input_shape =(28,28,1)))
+model.add(Conv2D(32,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same'))
+model.add(MaxPooling2D(2,2))
+
+# BLOCK 2
+model.add(Conv2D(64,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same'))
+model.add(Conv2D(64,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same'))
+model.add(MaxPooling2D(2,2))
+
+# BLOCK 2
+model.add(Conv2D(128,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same'))
+model.add(Conv2D(128,(3,3), activation='relu',kernel_initializer = 'he_uniform', padding ='same'))
+model.add(MaxPooling2D(2,2))
+
+# Add ANN
+model.add(Flatten())
+model.add(Dense(128,activation = 'relu', kernel_initializer = 'he_uniform'))
+model.add(Dense(10,activation = 'softmax'))
+opt = SGD(lr= 0.01, momentum = 0.9)
+
+model.compile(loss = 'categorical_crossentropy', optimizer = opt, metrics = ['accuracy'])
+
+history = model.fit(x_train, y_train, epochs = 20, batch_size = 64, validation_data = (x_test,y_test), verbose = 1)
+
+# PREDICT AND TEST
+plt.imshow(X[4])
+num = int(np.argmax(y_pred[4]))
+classes[num]
